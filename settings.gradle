@@ -1,0 +1,10 @@
+rootProject.name = "SofarGradle"
+println 'This is executed during the initialization phase.'
+
+include ':app'
+
+include ':framework:empty'
+include ':framework:utility'
+include ':framework:widget'
+
+include ':feature:ad'

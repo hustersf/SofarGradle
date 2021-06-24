@@ -1,0 +1,2 @@
+com/sofar/ad/BuildConfig.java
+ com.sofar.ad.BuildConfig

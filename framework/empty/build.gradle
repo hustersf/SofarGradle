@@ -1,0 +1,42 @@
+apply from: rootProject.file('library.gradle')
+
+dependencies {
+
+}
+
+println 'This is executed during the configuration phase.'
+
+task configured {
+    println 'This is also executed during the configuration phase.'
+}
+
+task test1 {
+    doLast {
+        println 'This is executed during the execution phase.'
+    }
+}
+
+task test2 {
+    doFirst {
+        println 'This is executed first during the execution phase.'
+    }
+    doLast {
+        println 'This is executed last during the execution phase.'
+    }
+    println 'This is executed during the configuration phase as well.'
+}
+
+task test3 {
+    dependsOn('test1')
+    doFirst {
+        println 'task test3 is executed during the execution phase.'
+    }
+}
+
+beforeEvaluate {
+    println("beforeEvaluate")
+}
+
+afterEvaluate {
+    println("afterEvaluate")
+}
