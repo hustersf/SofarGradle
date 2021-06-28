@@ -1,2 +1,0 @@
-com/sofar/widget/BuildConfig.java
- com.sofar.widget.BuildConfig
