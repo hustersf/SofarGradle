@@ -20,6 +20,9 @@ dependencies {
     implementation 'com.android.tools.build:gradle:4.1.0'
     implementation gradleApi()
     implementation localGroovy()
+
+    //常规io操作
+    implementation 'commons-io:commons-io:2.6'
 }
 
 repositories {
