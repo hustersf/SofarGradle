@@ -2,8 +2,7 @@ plugins {
     id 'com.android.application'
 }
 
-apply plugin: com.sofar.demo.DemoPlugin
-apply plugin: 'com.sofar.toast'
+apply from: rootProject.file('gradle/plugin/bytecode.gradle')
 
 android {
     compileSdkVersion 29
@@ -56,4 +55,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     implementation project(':framework:widget')
+
+    implementation 'androidx.work:work-runtime:2.1.0'
 }
