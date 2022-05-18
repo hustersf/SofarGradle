@@ -54,7 +54,7 @@ class TryCatchAdviceAdapter(
 
     // 3标志：catch块开始位置
     mv.visitLabel(handlerLabel)
-    mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, arrayOf<Any>("java/lang/Exception"))
+    //mv.visitFrame(Opcodes.F_SAME1, 0, null, 1, arrayOf<Any>("java/lang/Exception"))
     // 0代表this， 1 第一个参数，异常信息保存到局部变量
     mv.visitVarInsn(ASTORE, 1)
     // 从local variables取出局部变量到operand stack

@@ -37,7 +37,7 @@ class TryCatchTransform(project: Project, var extension: TryCatchExtension) :
   ): Boolean {
     var className = inputFileEntity.relativePath.replace("/", ".")
     if (isTargetClass(className)) {
-      println("TryCatchTransform processFile className$className")
+      println("TryCatchTransform processFile className=$className")
       val bytes: ByteArray = targetClassToByteArray(input!!)
       output!!.write(bytes)
       return true
@@ -49,7 +49,7 @@ class TryCatchTransform(project: Project, var extension: TryCatchExtension) :
     //创建ClassReader，传入class字节码的输入流
     var classReader = ClassReader(inputStream)
     //创建ClassWriter，绑定classReader
-    var classWriter = ClassWriter(classReader, ClassWriter.COMPUTE_MAXS)
+    var classWriter = ClassWriter(classReader, ClassWriter.COMPUTE_FRAMES)
     //创建自定义的ClassVisitor，并绑定classWriter
     var classVisitor = TryCatchVisitor(extension, classWriter)
     //接受一个实现了 ClassVisitor接口的对象实例作为参数，然后依次调用 ClassVisitor接口的各个方法
