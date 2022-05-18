@@ -11,7 +11,7 @@ class TryCatchPlugin : Plugin<Project> {
     if (project.plugins.hasPlugin(AppPlugin::class.java)) {
       val tryCatchExtension = project.extensions.create("trycatch", TryCatchExtension::class.java)
       var appExtension = project.extensions.findByType(AppExtension::class.java)
-      appExtension?.registerTransform(TryCatchTransform(tryCatchExtension))
+      appExtension?.registerTransform(TryCatchTransform(project, tryCatchExtension))
     }
   }
 
