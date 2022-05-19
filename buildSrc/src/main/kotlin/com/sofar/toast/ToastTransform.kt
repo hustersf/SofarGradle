@@ -1,11 +1,16 @@
 package com.sofar.toast
 
 import com.android.build.api.transform.QualifiedContent
-import com.android.build.api.transform.Transform
-import com.android.build.api.transform.TransformInvocation
 import com.android.build.gradle.internal.pipeline.TransformManager
+import com.sofar.transform.FileEntity
+import com.sofar.transform.ParallelTransform
+import org.gradle.api.Project
+import org.objectweb.asm.ClassReader
+import org.objectweb.asm.ClassWriter
+import java.io.InputStream
+import java.io.OutputStream
 
-class ToastTransform : Transform() {
+class ToastTransform(project: Project) : ParallelTransform(project) {
 
   override fun getName(): String {
     return "toast"
@@ -23,22 +28,21 @@ class ToastTransform : Transform() {
     return true
   }
 
-  override fun transform(transformInvocation: TransformInvocation?) {
-    super.transform(transformInvocation)
-    println("ToastTransform start")
-    var start = System.currentTimeMillis()
-    transformInvocation?.inputs?.forEach {
-
-      it.directoryInputs.forEach { a ->
-        println(a.toString())
-      }
-
-      it.jarInputs.forEach { b ->
-        println(b.toString())
-      }
-
+  override fun processFile(
+    inputFileEntity: FileEntity,
+    input: InputStream?,
+    output: OutputStream?,
+  ): Boolean {
+    if (inputFileEntity.relativePath.endsWith(".class")) {
+      var classReader = ClassReader(input)
+      var classWriter = ClassWriter(classReader, ClassWriter.COMPUTE_MAXS)
+      var classVisitor = ToastVisitor(inputFileEntity.fromPath, classWriter)
+      classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES)
+      val bytes: ByteArray = classWriter.toByteArray()
+      output!!.write(bytes)
+      return true
     }
-    println("ToastTransform end cost time=${System.currentTimeMillis() - start}ms")
+    return false
   }
 
 }
