@@ -4,6 +4,7 @@ plugins {
 
 apply from: rootProject.file('gradle/plugin/bytecode.gradle')
 apply plugin: com.sofar.toast.ToastPlugin
+apply plugin: com.sofar.image.CheckImageRepeatPlugin
 
 android {
     compileSdkVersion 30
