@@ -2,6 +2,8 @@ package com.sofar.demo
 
 import com.android.build.api.transform.QualifiedContent
 import com.android.build.gradle.internal.pipeline.TransformManager
+import com.sofar.router.ROUTER_SERVICE_INFO_FILE_NAME
+import com.sofar.router.SERVICE_INIT_CLASS_NAME
 import com.sofar.transform.FileEntity
 import com.sofar.transform.ParallelTransform
 import org.gradle.api.Project
@@ -46,6 +48,16 @@ class DemoTransform(project: Project) : ParallelTransform(project) {
     input: InputStream?,
     output: OutputStream?,
   ): Boolean {
+    if (inputFileEntity.relativePath.endsWith(ROUTER_SERVICE_INFO_FILE_NAME)) {
+      println("DemoTransform:" + inputFileEntity.relativePath+ "  from="+inputFileEntity.fromPath)
+    }
+
+    if (inputFileEntity.relativePath.endsWith(".class")) {
+      var className = inputFileEntity.relativePath.replace("/", ".")
+      if (SERVICE_INIT_CLASS_NAME.equals(className.removeSuffix(".class"))) {
+        println("RouterTransform:" + inputFileEntity.relativePath + "  from=" + inputFileEntity.fromPath)
+      }
+    }
     return false
   }
 

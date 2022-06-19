@@ -6,7 +6,7 @@ import org.gradle.api.Project
 /**
  * Transform标准流程
  */
-class TransformProcessor(
+open class TransformProcessor(
   private val name: String,
   private val project: Project,
   private val action: ProcessAction,

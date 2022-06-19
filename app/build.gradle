@@ -1,10 +1,13 @@
 plugins {
     id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
 }
 
 apply from: rootProject.file('gradle/plugin/bytecode.gradle')
 apply plugin: com.sofar.toast.ToastPlugin
-apply plugin: com.sofar.image.CheckImageRepeatPlugin
+apply plugin: com.sofar.router.RouterPlugin
+apply plugin: com.sofar.demo.DemoPlugin
 
 android {
     compileSdkVersion 30
@@ -32,8 +35,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     flavorDimensions "default"
@@ -57,7 +60,13 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation project(':framework:widget')
-
     implementation 'androidx.work:work-runtime:2.1.0'
+
+    implementation project(':framework:widget')
+    implementation project(':feature:account')
+    implementation project(':feature:share')
+    implementation project(':router:router-api')
+
+    implementation project(':feature-api:account-api')
+    implementation project(':feature-api:share-api')
 }

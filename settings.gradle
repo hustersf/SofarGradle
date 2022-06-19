@@ -8,3 +8,12 @@ include ':framework:utility'
 include ':framework:widget'
 
 include ':feature:ad'
+include ':feature:share'
+include ':feature:account'
+
+include ':feature-api:account-api'
+include ':feature-api:share-api'
+
+include ':router:router-api'
+include ':router:router-annotation'
+include ':router:router-compiler'
