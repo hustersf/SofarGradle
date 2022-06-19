@@ -31,12 +31,13 @@ class ToastVisitor(private val libName: String, classWriter: ClassWriter) :
   ): MethodVisitor {
     var mv: MethodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions)
     if (className.equals("com/sofar/gradle/SafeToast")) {
-      return mv;
+      return mv
     }
-    return CommonMethodVisitor(mv)
+    return CommonMethodVisitor(mv, name)
   }
 
-  private inner class CommonMethodVisitor(mv: MethodVisitor) : MethodVisitor(Opcodes.ASM6, mv) {
+  private inner class CommonMethodVisitor(mv: MethodVisitor, val methodName: String?) :
+    MethodVisitor(Opcodes.ASM6, mv) {
 
     override fun visitMethodInsn(
       opcode: Int,
@@ -45,16 +46,20 @@ class ToastVisitor(private val libName: String, classWriter: ClassWriter) :
       descriptor: String?,
       isInterface: Boolean,
     ) {
-      if (opcode == Opcodes.INVOKEVIRTUAL
-        && owner.equals("android/widget/Toast")
-        && name.equals("show")
-      ) {
+      if (opcode == Opcodes.INVOKESTATIC && "android/widget/Toast" == owner && "makeText" == name) {
+        super.visitMethodInsn(Opcodes.INVOKESTATIC,
+          "com/sofar/gradle/SafeToast",
+          "makeToast",
+          descriptor,
+          isInterface)
+        println("[Toast] replace make toast call from $className.$methodName in $libName")
+      } else if (opcode == Opcodes.INVOKEVIRTUAL && owner == "android/widget/Toast" && name == "show") {
         super.visitMethodInsn(Opcodes.INVOKESTATIC,
           "com/sofar/gradle/SafeToast",
           "showToastContent",
           "(Landroid/widget/Toast;)V",
           isInterface)
-        println("[Toast] replace show toast call from $className owner=$owner descriptor=$descriptor")
+        println("[Toast] replace show toast call from $className.$methodName in $libName")
       } else {
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
       }
