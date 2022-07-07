@@ -1,5 +1,6 @@
 package com.sofar.transform.processor
 
+import com.android.build.api.transform.Status
 import com.sofar.transform.FileEntity
 import org.gradle.api.Project
 import java.io.InputStream
@@ -11,11 +12,12 @@ class PreTransformProcessor(
   private val action: PreProcessAction,
 ) : TransformProcessor(name, project, action = object : ProcessAction {
   override fun processFile(
-    inputFileEntity: FileEntity,
+    status: Status,
+    fileEntity: FileEntity,
     input: InputStream?,
     output: OutputStream?,
   ): Boolean {
-    action.preProcessFile(inputFileEntity, input, output)
+    action.preProcessFile(status, fileEntity, input, output)
     return false
   }
 })

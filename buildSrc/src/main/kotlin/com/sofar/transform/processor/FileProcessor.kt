@@ -40,7 +40,7 @@ class FileProcessor(private val action: ProcessAction) {
           Status.NOTCHANGED -> {
           }
           Status.REMOVED -> if (outputFile.exists()) {
-            outputFile.delete()
+            deleteDirectory(outputFile, outputDir)
           }
           Status.ADDED, Status.CHANGED -> {
             try {
@@ -49,7 +49,7 @@ class FileProcessor(private val action: ProcessAction) {
               //maybe mkdirs fail for some strange reason, try again.
               Files.createParentDirs(outputFile)
             }
-            transformSingleFile(inputFile, outputFile, inputDirPath)
+            transformSingleFile(status, inputFile, outputFile, inputDirPath)
           }
         }
       }
@@ -62,17 +62,22 @@ class FileProcessor(private val action: ProcessAction) {
     val inputDirPath = inputDir.absolutePath
     val outputDirPath = outputDir.absolutePath
     if (inputDir.isDirectory) {
-      var fileList = FluentIterable.from<File>(Files.fileTraverser().depthFirstPreOrder(inputDir))
+      var fileList = FluentIterable.from(Files.fileTraverser().depthFirstPreOrder(inputDir))
         .filter(Files.isFile())
       for (file in fileList) {
         val filePath = file.absolutePath
         val outputFile = File(filePath.replace(inputDirPath, outputDirPath))
-        transformSingleFile(file, outputFile, inputDirPath)
+        transformSingleFile(Status.ADDED, file, outputFile, inputDirPath)
       }
     }
   }
 
-  private fun transformSingleFile(inputFile: File, outputFile: File, inputDir: String) {
+  private fun transformSingleFile(
+    status: Status,
+    inputFile: File,
+    outputFile: File,
+    inputDir: String,
+  ) {
     var filePath = inputFile.absolutePath.replace(inputDir, "")
     if (filePath.startsWith("/")) {
       filePath = filePath.substring(1)
@@ -83,10 +88,35 @@ class FileProcessor(private val action: ProcessAction) {
     }
     val inputStream = FileInputStream(inputFile)
     val outputStream = FileOutputStream(outputFile)
-    if (!action.processFile(fileEntity, inputStream, outputStream)) {
+    if (!action.processFile(status, fileEntity, inputStream, outputStream)) {
       FileUtils.copyFile(inputFile, outputFile)
     }
     inputStream.close()
     outputStream.close()
+  }
+
+  /**
+   * outputFile:要删除的文件
+   */
+  private fun deleteDirectory(outputFile: File, outputDir: File) {
+    if (outputFile.isDirectory) {
+      var fileList = FluentIterable.from(Files.fileTraverser().depthFirstPreOrder(outputFile))
+        .filter(Files.isFile())
+      for (file in fileList) {
+        deleteSingleFile(file, outputDir)
+      }
+    } else {
+      deleteSingleFile(outputFile, outputDir)
+    }
+    outputFile.deleteRecursively()
+  }
+
+  private fun deleteSingleFile(outputFile: File, outputDir: File) {
+    var filePath = outputFile.absolutePath.replace(outputDir.absolutePath, "")
+    if (filePath.startsWith("/")) {
+      filePath = filePath.substring(1)
+    }
+    val fileEntity = FileEntity(filePath, outputDir.absolutePath, false)
+    action.processFile(Status.REMOVED, fileEntity, null, null)
   }
 }

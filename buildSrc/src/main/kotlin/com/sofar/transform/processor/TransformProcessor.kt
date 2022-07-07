@@ -15,14 +15,7 @@ open class TransformProcessor(
   private val mFileProcessor: FileProcessor = FileProcessor(action)
   private val mJarProcessor: JarProcessor = JarProcessor(action)
 
-  fun transform(transformInvocation: TransformInvocation?) {
-    if (transformInvocation == null) {
-      println("transformInvocation null")
-      return
-    }
-
-    println("Transform $name start")
-    var start = System.currentTimeMillis()
+  fun transform(transformInvocation: TransformInvocation) {
 
     //管理输出路径
     var outputProvider = transformInvocation.outputProvider
@@ -40,7 +33,5 @@ open class TransformProcessor(
         mJarProcessor.processJarInput(transformInvocation, jarInput)
       }
     }
-
-    println("Transform $name end cost time=${System.currentTimeMillis() - start}ms")
   }
 }

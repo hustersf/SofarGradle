@@ -1,6 +1,7 @@
 package com.sofar.router
 
 import com.android.build.api.transform.QualifiedContent
+import com.android.build.api.transform.Status
 import com.android.build.api.transform.TransformInvocation
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.sofar.transform.FileEntity
@@ -43,16 +44,17 @@ class RouterTransform(project: Project) : ParallelTransform(project) {
   }
 
   override fun preProcessFile(
-    inputFileEntity: FileEntity,
+    status: Status,
+    fileEntity: FileEntity,
     input: InputStream?,
     output: OutputStream?,
   ) {
-    super.preProcessFile(inputFileEntity, input, output)
+    super.preProcessFile(status, fileEntity, input, output)
     if (input == null) {
       return
     }
-    if (inputFileEntity.relativePath.endsWith(ROUTER_SERVICE_INFO_FILE_NAME)) {
-      println("RouterTransform 读取配置文件:${inputFileEntity.relativePath}")
+    if (fileEntity.relativePath.endsWith(ROUTER_SERVICE_INFO_FILE_NAME)) {
+      println("RouterTransform 读取配置文件:${fileEntity.relativePath}")
       var content = String(input.readAllBytes(), Charsets.UTF_8)
       var strs = content.split("\n")
       strs.forEach {
@@ -65,7 +67,8 @@ class RouterTransform(project: Project) : ParallelTransform(project) {
   }
 
   override fun processFile(
-    inputFileEntity: FileEntity,
+    status: Status,
+    fileEntity: FileEntity,
     input: InputStream?,
     output: OutputStream?,
   ): Boolean {
@@ -73,10 +76,10 @@ class RouterTransform(project: Project) : ParallelTransform(project) {
       return false
     }
 
-    if (inputFileEntity.relativePath.endsWith(".class")) {
-      var className = inputFileEntity.relativePath.replace("/", ".")
+    if (fileEntity.relativePath.endsWith(".class")) {
+      var className = fileEntity.relativePath.replace("/", ".")
       if (SERVICE_INIT_CLASS_NAME == className.removeSuffix(".class")) {
-        println("RouterTransform:" + inputFileEntity.relativePath + "  from=" + inputFileEntity.fromPath)
+        println("RouterTransform:" + fileEntity.relativePath + "  from=" + fileEntity.fromPath)
         val bytes: ByteArray = targetClassToByteArray(input)
         output.write(bytes)
         return true

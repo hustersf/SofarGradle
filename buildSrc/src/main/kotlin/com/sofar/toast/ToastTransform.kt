@@ -1,6 +1,7 @@
 package com.sofar.toast
 
 import com.android.build.api.transform.QualifiedContent
+import com.android.build.api.transform.Status
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.sofar.transform.FileEntity
 import com.sofar.transform.ParallelTransform
@@ -29,14 +30,19 @@ class ToastTransform(project: Project) : ParallelTransform(project) {
   }
 
   override fun processFile(
-    inputFileEntity: FileEntity,
+    status: Status,
+    fileEntity: FileEntity,
     input: InputStream?,
     output: OutputStream?,
   ): Boolean {
-    if (inputFileEntity.relativePath.endsWith(".class")) {
+    if (status == Status.REMOVED) {
+      return false
+    }
+
+    if (fileEntity.relativePath.endsWith(".class")) {
       var classReader = ClassReader(input)
       var classWriter = ClassWriter(classReader, ClassWriter.COMPUTE_MAXS)
-      var classVisitor = ToastVisitor(inputFileEntity.fromPath, classWriter)
+      var classVisitor = ToastVisitor(fileEntity.fromPath, classWriter)
       classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES)
       val bytes: ByteArray = classWriter.toByteArray()
       output!!.write(bytes)

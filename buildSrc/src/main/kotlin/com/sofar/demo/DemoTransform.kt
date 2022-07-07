@@ -1,9 +1,8 @@
 package com.sofar.demo
 
 import com.android.build.api.transform.QualifiedContent
+import com.android.build.api.transform.Status
 import com.android.build.gradle.internal.pipeline.TransformManager
-import com.sofar.router.ROUTER_SERVICE_INFO_FILE_NAME
-import com.sofar.router.SERVICE_INIT_CLASS_NAME
 import com.sofar.transform.FileEntity
 import com.sofar.transform.ParallelTransform
 import org.gradle.api.Project
@@ -43,21 +42,29 @@ class DemoTransform(project: Project) : ParallelTransform(project) {
     return true
   }
 
+  override fun needPreProcess(): Boolean {
+    return false
+  }
+
+  override fun preProcessFile(
+    status: Status,
+    fileEntity: FileEntity,
+    input: InputStream?,
+    output: OutputStream?,
+  ) {
+    super.preProcessFile(status, fileEntity, input, output)
+    println("DemoTransform: preProcessFile status=$status file=${fileEntity.relativePath} " +
+        "isJar=${fileEntity.isJarInput}")
+  }
+
   override fun processFile(
-    inputFileEntity: FileEntity,
+    status: Status,
+    fileEntity: FileEntity,
     input: InputStream?,
     output: OutputStream?,
   ): Boolean {
-    if (inputFileEntity.relativePath.endsWith(ROUTER_SERVICE_INFO_FILE_NAME)) {
-      println("DemoTransform:" + inputFileEntity.relativePath+ "  from="+inputFileEntity.fromPath)
-    }
-
-    if (inputFileEntity.relativePath.endsWith(".class")) {
-      var className = inputFileEntity.relativePath.replace("/", ".")
-      if (SERVICE_INIT_CLASS_NAME.equals(className.removeSuffix(".class"))) {
-        println("RouterTransform:" + inputFileEntity.relativePath + "  from=" + inputFileEntity.fromPath)
-      }
-    }
+    println("DemoTransform: processFile status=$status file=${fileEntity.relativePath} " +
+        "isJar=${fileEntity.isJarInput}")
     return false
   }
 

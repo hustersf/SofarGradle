@@ -1,6 +1,7 @@
 package com.sofar.trycatch
 
 import com.android.build.api.transform.QualifiedContent
+import com.android.build.api.transform.Status
 import com.android.build.gradle.internal.pipeline.TransformManager
 import com.sofar.transform.FileEntity
 import com.sofar.transform.ParallelTransform
@@ -31,11 +32,16 @@ class TryCatchTransform(project: Project, var extension: TryCatchExtension) :
   }
 
   override fun processFile(
-    inputFileEntity: FileEntity,
+    status: Status,
+    fileEntity: FileEntity,
     input: InputStream?,
     output: OutputStream?,
   ): Boolean {
-    var className = inputFileEntity.relativePath.replace("/", ".")
+    if (status == Status.REMOVED) {
+      return false
+    }
+
+    var className = fileEntity.relativePath.replace("/", ".")
     if (isTargetClass(className)) {
       println("TryCatchTransform processFile className=$className")
       val bytes: ByteArray = targetClassToByteArray(input!!)

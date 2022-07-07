@@ -1,5 +1,6 @@
 package com.sofar.transform
 
+import com.android.build.api.transform.Status
 import com.android.build.api.transform.Transform
 import com.android.build.api.transform.TransformInvocation
 import com.sofar.transform.processor.PreProcessAction
@@ -20,18 +21,29 @@ abstract class ParallelTransform(private val project: Project) : Transform(), Pr
   override fun transform(transformInvocation: TransformInvocation?) {
     super.transform(transformInvocation)
     if (transformInvocation == null) {
+      println("Transform $name transformInvocation null")
       return
     }
 
+    println("Transform $name start")
+    var start = System.currentTimeMillis()
     if (needPreProcess()) {
+      println("Transform $name start preProcess")
+      var s1 = System.currentTimeMillis()
       val preProcessor = PreTransformProcessor(name, project, this)
       preProcessor.transform(transformInvocation)
+      println("Transform $name preProcess cost time=${System.currentTimeMillis() - s1}ms")
     }
 
+    println("Transform $name start process")
+    var s2 = System.currentTimeMillis()
     val processor = TransformProcessor(name, project, this)
     processor.transform(transformInvocation)
+    println("Transform $name process cost time=${System.currentTimeMillis() - s2}ms")
 
     afterTransform(transformInvocation)
+
+    println("Transform $name end cost time=${System.currentTimeMillis() - start}ms")
   }
 
   open fun needPreProcess(): Boolean {
@@ -40,7 +52,8 @@ abstract class ParallelTransform(private val project: Project) : Transform(), Pr
 
 
   override fun preProcessFile(
-    inputFileEntity: FileEntity,
+    status: Status,
+    fileEntity: FileEntity,
     input: InputStream?,
     output: OutputStream?,
   ) {
