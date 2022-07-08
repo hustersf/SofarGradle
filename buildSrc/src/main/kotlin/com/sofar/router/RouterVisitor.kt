@@ -5,7 +5,11 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 
-class RouterVisitor(var classSet: MutableSet<String>, classWriter: ClassWriter) :
+class RouterVisitor(
+  var addClasses: MutableSet<String>,
+  var deleteClasses: MutableSet<String>,
+  classWriter: ClassWriter,
+) :
   ClassVisitor(Opcodes.ASM7, classWriter) {
 
   override fun visit(
@@ -27,14 +31,15 @@ class RouterVisitor(var classSet: MutableSet<String>, classWriter: ClassWriter) 
     exceptions: Array<out String>?,
   ): MethodVisitor {
     var methodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions)
-    if (SERVICE_INIT_METHOD_NAME == name) {
-      return RouterMethodVisitor(classSet, Opcodes.ASM7, methodVisitor)
+    if (Const.INIT_METHOD == name) {
+      return RouterMethodVisitor(addClasses, deleteClasses, Opcodes.ASM7, methodVisitor)
     }
     return methodVisitor
   }
 
   class RouterMethodVisitor(
-    private val classSet: MutableSet<String>,
+    private val addClasses: MutableSet<String>,
+    private val deleteClasses: MutableSet<String>,
     api: Int,
     methodVisitor: MethodVisitor,
   ) : MethodVisitor(api, methodVisitor) {
@@ -46,14 +51,17 @@ class RouterVisitor(var classSet: MutableSet<String>, classWriter: ClassWriter) 
       descriptor: String?,
       isInterface: Boolean,
     ) {
-      super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
+      if (!deleteClasses.contains(owner)) {
+        super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
+      }
     }
 
     override fun visitCode() {
       super.visitCode()
-      classSet.forEach {
+      addClasses.forEach {
         var owner = it.replace(".", "/")
-        println("visitCode $it  $owner")
+        println("visitCode $owner")
+        deleteClasses.add(owner)
         mv.visitMethodInsn(Opcodes.INVOKESTATIC, owner, "init", "()V", false)
       }
     }

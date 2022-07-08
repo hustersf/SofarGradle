@@ -4,7 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
-import com.sofar.account.IAccountServiceV2;
+
+import com.sofar.account.IAccountService;
 import com.sofar.router.log.Debugger;
 import com.sofar.router.log.DefaultLogger;
 import com.sofar.router.service.ServiceLoader;
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     Debugger.setEnableLog(true);
     Button button = findViewById(R.id.router_btn);
     button.setOnClickListener(v -> {
-      ServiceLoader.get(IAccountServiceV2.class).login(this);
+      ServiceLoader.get(IAccountService.class).login(this);
     });
   }
 }

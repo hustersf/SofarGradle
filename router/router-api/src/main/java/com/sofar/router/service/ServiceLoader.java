@@ -2,6 +2,7 @@ package com.sofar.router.service;
 
 import java.util.HashMap;
 
+import com.sofar.router.Const;
 import com.sofar.router.log.Debugger;
 import com.sofar.router.util.ProxyHelper;
 import com.sofar.router.util.SingletonPool;
@@ -15,7 +16,14 @@ public class ServiceLoader {
   private ServiceLoader() { }
 
   public static void init() {
-
+    try {
+      Class.forName(Const.SERVICE_LOADER_INIT)
+        .getMethod(Const.INIT_METHOD)
+        .invoke(null);
+      Debugger.i("[ServiceLoader] init class invoked");
+    } catch (Exception e) {
+      Debugger.i("[ServiceLoader] init failed=" + e);
+    }
   }
 
   /**
