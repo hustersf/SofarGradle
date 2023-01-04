@@ -52,6 +52,7 @@ class RouterVisitor(
       isInterface: Boolean,
     ) {
       if (!deleteClasses.contains(owner)) {
+        println("visitMethodInsn $owner")
         super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
       }
     }

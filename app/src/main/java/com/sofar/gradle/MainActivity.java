@@ -20,6 +20,8 @@ public class MainActivity extends AppCompatActivity {
     B b = new B();
     b.run();
 
+    Debugger.setLogger(DefaultLogger.INSTANCE);
+    Debugger.setEnableLog(true);
     ServiceLoader.init();
     toastTest();
     routerTest();
@@ -33,8 +35,6 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void routerTest() {
-    Debugger.setLogger(DefaultLogger.INSTANCE);
-    Debugger.setEnableLog(true);
     Button button = findViewById(R.id.router_btn);
     button.setOnClickListener(v -> {
       ServiceLoader.get(IAccountService.class).login(this);

@@ -83,6 +83,7 @@ public class RouterServiceProcessor extends BaseProcessor {
 
     ClassName implCls = className(implClsName);
     ClassName interfaceCls = className(interfaceClsName);
+    //这里会调用 ServiceLoader.put 方法
     ClassName serviceLoader = ClassName.get("com.sofar.router.service", "ServiceLoader");
     //生成方法
     MethodSpec methodSpec = MethodSpec.methodBuilder(INIT_METHOD)

@@ -7,7 +7,7 @@ plugins {
 apply from: rootProject.file('gradle/plugin/bytecode.gradle')
 apply plugin: com.sofar.toast.ToastPlugin
 apply plugin: com.sofar.router.RouterPlugin
-apply plugin: com.sofar.demo.DemoPlugin
+//apply plugin: com.sofar.demo.DemoPlugin
 
 android {
     compileSdkVersion 30
