@@ -1,0 +1,22 @@
+pluginManagement {
+    includeBuild("plugin-project")
+}
+includeBuild("plugin-project")
+rootProject.name = "SofarGradle"
+println 'This is executed during the initialization phase.'
+include ':app'
+
+include ':framework:empty'
+include ':framework:utility'
+include ':framework:widget'
+
+include ':feature:ad'
+include ':feature:share'
+include ':feature:account'
+
+include ':feature-api:account-api'
+include ':feature-api:share-api'
+
+include ':router:router-api'
+include ':router:router-annotation'
+include ':router:router-compiler'
