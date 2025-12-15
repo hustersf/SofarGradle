@@ -103,6 +103,7 @@ public class RouterServiceProcessor extends BaseProcessor {
   }
 
 
+  // 配合 RouterTransform 使用
   private void generateConfigFile(HashSet<String> classSet) {
     StringBuffer sb = new StringBuffer();
     for (String name : classSet) {

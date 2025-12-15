@@ -2,7 +2,7 @@ pluginManagement {
     includeBuild("plugin-project")
 }
 includeBuild("plugin-project")
-rootProject.name = "SofarGradle"
+rootProject.name = "gradle-transform"
 println 'This is executed during the initialization phase.'
 include ':app'
 

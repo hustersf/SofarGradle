@@ -14,11 +14,19 @@
     android:text="Toast_Hook测试" />
 
   <Button
-    android:id="@+id/router_btn"
+    android:id="@+id/login_btn"
     android:layout_width="match_parent"
     android:layout_height="50dp"
     android:layout_margin="20dp"
     android:layout_marginTop="10dp"
-    android:text="组件通信测试" />
+    android:text="登陆组件" />
+
+  <Button
+    android:id="@+id/share_btn"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:layout_margin="20dp"
+    android:layout_marginTop="10dp"
+    android:text="分享组件" />
 
 </LinearLayout>

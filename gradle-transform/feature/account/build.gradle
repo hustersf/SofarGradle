@@ -5,6 +5,6 @@ dependencies {
 
     implementation project(':router:router-api')
     implementation project(':router:router-annotation')
-    kapt project(':router:router-compiler')
+    annotationProcessor project(':router:router-compiler')
 }
 

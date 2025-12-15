@@ -9,6 +9,7 @@ import com.sofar.account.IAccountService;
 import com.sofar.router.log.Debugger;
 import com.sofar.router.log.DefaultLogger;
 import com.sofar.router.service.ServiceLoader;
+import com.sofar.share.IShareService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,9 +36,14 @@ public class MainActivity extends AppCompatActivity {
   }
 
   private void routerTest() {
-    Button button = findViewById(R.id.router_btn);
+    Button button = findViewById(R.id.login_btn);
     button.setOnClickListener(v -> {
       ServiceLoader.get(IAccountService.class).login(this);
+    });
+
+    Button button2 = findViewById(R.id.share_btn);
+    button2.setOnClickListener(v -> {
+      ServiceLoader.get(IShareService.class).share(this);
     });
   }
 }
