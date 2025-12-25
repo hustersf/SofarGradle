@@ -1,7 +1,7 @@
 plugins {
   alias(libs.plugins.android.library)
   alias(libs.plugins.kotlin.android)
-  alias(libs.plugins.kotlin.kapt)
+  alias(libs.plugins.google.ksp)
 }
 
 android {
@@ -35,5 +35,5 @@ dependencies {
 
   implementation(project(":router:router-api"))
   implementation(project(":router:router-annotation"))
-  kapt(project(":router:router-compiler"))
+  ksp(project(":router:router-compiler"))
 }

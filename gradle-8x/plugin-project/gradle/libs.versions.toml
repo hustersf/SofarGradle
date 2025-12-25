@@ -1,0 +1,18 @@
+[versions]
+agp = "8.7.3"
+kotlin = "2.0.21"
+io = "2.6"
+guava = "28.1-jre"
+asm = "9.0"
+
+[libraries]
+android-gradle-plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+commons-io = { module = "commons-io:commons-io", version.ref = "io" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+
+

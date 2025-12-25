@@ -1,5 +1,4 @@
 pluginManagement {
-  includeBuild("plugin-project")
   repositories {
     maven { url = uri("https://maven.aliyun.com/repository/public") }
     maven { url = uri("https://maven.aliyun.com/repository/google") }
@@ -27,15 +26,7 @@ dependencyResolutionManagement {
     mavenCentral()
   }
 }
-includeBuild("plugin-project")
-rootProject.name = "gradle-8.x"
-include(":app")
-include(":empty")
-include(":feature:share")
-include(":feature:account")
-include(":feature-api:share-api")
-include(":feature-api:account-api")
 
-include(":router:router-api")
-include(":router:router-annotation")
-include(":router:router-compiler")
+rootProject.name = "plugin-project"
+include(":plugin-core")
+include(":plugin-router")

@@ -2,6 +2,8 @@ package com.sofar.router.service;
 
 import java.util.HashMap;
 
+import android.util.Log;
+
 import com.sofar.router.Const;
 import com.sofar.router.log.Debugger;
 import com.sofar.router.util.LazyInitHelper;
@@ -78,6 +80,8 @@ public class ServiceLoader {
    * APT阶段生成的模版代码会调用此方法
    */
   public static void put(Class interfaceCls, Class implCls, boolean singleton) {
+    Log.d("ServiceLoader", "[ServiceLoader] put -> " + interfaceCls.getSimpleName()
+      + "," + implCls.getSimpleName() + "," + singleton);
     ServiceLoader loader = SERVICES.get(interfaceCls);
     if (loader == null) {
       loader = new ServiceLoader();

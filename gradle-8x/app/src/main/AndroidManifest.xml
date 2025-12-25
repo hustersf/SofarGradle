@@ -3,6 +3,7 @@
   xmlns:tools="http://schemas.android.com/tools">
 
   <application
+    android:name=".DemoApplication"
     android:allowBackup="true"
     android:dataExtractionRules="@xml/data_extraction_rules"
     android:fullBackupContent="@xml/backup_rules"
@@ -12,13 +13,31 @@
     android:supportsRtl="true"
     android:theme="@style/Theme.Gradle8x">
     <activity
-      android:name=".MainActivity"
+      android:name=".main.MainActivity"
       android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
+    </activity>
+
+    <activity
+      android:name=".router.RouterActivity"
+      android:configChanges="orientation|keyboardHidden|screenSize"
+      android:exported="true">
+
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+
+        <data
+          android:host="router"
+          android:scheme="sofar" />
+      </intent-filter>
+
     </activity>
   </application>
 

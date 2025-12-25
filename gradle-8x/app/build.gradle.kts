@@ -1,6 +1,8 @@
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.android)
+  id("com.sofar.plugin.demo.artifact")
+  id("com.sofar.plugin.router")
 }
 
 android {
@@ -42,4 +44,12 @@ dependencies {
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
   androidTestImplementation(libs.androidx.espresso.core)
+
+  implementation(project(":feature:account"))
+  implementation(project(":feature:share"))
+  implementation(project(":feature-api:account-api"))
+  implementation(project(":feature-api:share-api"))
+
+  implementation(project(":router:router-api"))
+  implementation(project(":router:router-annotation"))
 }

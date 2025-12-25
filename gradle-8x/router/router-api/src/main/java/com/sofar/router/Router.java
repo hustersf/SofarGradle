@@ -16,4 +16,11 @@ public class Router {
     return ServiceLoader.get(clazz);
   }
 
+  public void init(){
+    loadRouterMap();
+  }
+
+  private static void loadRouterMap(){
+
+  }
 }
