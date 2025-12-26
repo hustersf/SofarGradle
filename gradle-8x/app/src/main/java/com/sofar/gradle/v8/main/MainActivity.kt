@@ -54,6 +54,7 @@ class MainActivity : BaseUIActivity() {
   private fun pages(): List<PageData> {
     val list: MutableList<PageData> = mutableListOf()
     list.add(PageData("组件化", "sofar://router"))
+    list.add(PageData("try-catch插件", "sofar://try_catch"))
     return list
   }
 }

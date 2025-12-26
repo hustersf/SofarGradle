@@ -2,4 +2,6 @@
   <string name="app_name">gradle-8.x</string>
   <string name="login_btn">登陆</string>
   <string name="share_btn">分享</string>
+  <string name="crash_a_btn">CrashA</string>
+  <string name="crash_b_btn">CrashB</string>
 </resources>

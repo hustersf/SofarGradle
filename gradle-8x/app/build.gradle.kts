@@ -3,6 +3,21 @@ plugins {
   alias(libs.plugins.kotlin.android)
   id("com.sofar.plugin.demo.artifact")
   id("com.sofar.plugin.router")
+  id("com.sofar.plugin.trycatch")
+}
+
+trycatch {
+  targetClassMethod.set(
+    mapOf(
+      "androidx.work.impl.utils.ForceStopRunnable" to listOf("run"),
+      "com.sofar.gradle.v8.trycatch.CrashA" to listOf("run", "run2", "run3"),
+      "com.sofar.gradle.v8.trycatch.CrashB" to listOf("run", "run2", "run3")
+    )
+  )
+
+  exceptionHandler.set(mapOf(
+    "com.sofar.gradle.v8.trycatch.TryCatchExceptionUtil" to "defaultExceptionHandler"
+  ))
 }
 
 android {

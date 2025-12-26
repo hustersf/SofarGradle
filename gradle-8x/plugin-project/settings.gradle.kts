@@ -30,3 +30,4 @@ dependencyResolutionManagement {
 rootProject.name = "plugin-project"
 include(":plugin-core")
 include(":plugin-router")
+include(":plugin-trycatch")
