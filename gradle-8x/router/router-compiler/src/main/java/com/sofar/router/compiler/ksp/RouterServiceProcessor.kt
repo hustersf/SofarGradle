@@ -26,11 +26,17 @@ class RouterServiceProcessor(
     const val SERVICE_FILE_NAME = "META-INF/services/router/service_info.list"
     const val SUFFIX = "__Router__"
     const val METHOD = "load"
+    const val GENERATED_PACKAGE = "com.sofar.router.generated" // 汇总类统一包名
   }
 
-  // 用于收集生成的类名，最后统一写入配置文件
-  private val classSet = mutableSetOf<String>()
+  // 记录生成代码所需的元数据
+  private data class RouterMetadata(
+    val impl: ClassName,
+    val interf: ClassName,
+    val singleton: Boolean
+  )
 
+  private val routerMetadataList = mutableListOf<RouterMetadata>()
   // 关键：用于收集所有相关的源文件引用，实现精确增量
   private val originatingFiles = mutableSetOf<KSFile>()
 
@@ -49,77 +55,73 @@ class RouterServiceProcessor(
       val singleton = annotation.getArg(RouterService::singleton) ?: false
       val interfaceType = annotation.getArg(RouterService::interfaces) as? KSType
 
-      // 3.生成 Kotlin 辅助类文件
+      // 3.记录有哪些注解类
       interfaceType?.let {
-        generateKotlinFile(classSymbol, it, singleton)
+        routerMetadataList.add(
+          RouterMetadata(classSymbol.toClassName(), it.toClassName(), singleton)
+        )
       }
-
     }
     return emptyList()
   }
 
-  private fun generateKotlinFile(
-    classDeclaration: KSClassDeclaration,
-    interfaceType: KSType,
-    singleton: Boolean,
-  ) {
-    // 1. 动态提取类信息
-    val implClassName = classDeclaration.toClassName()      // 自动获取包名和类名
-    val interfaceClassName = interfaceType.toClassName()   // 自动获取接口名
-    val targetClassName = "${implClassName.simpleName}$SUFFIX"
-
-    // 2. 固定引用
-    val serviceLoaderClass = ClassName("com.sofar.router.service", "ServiceLoader")
-
-    // 3. 构建 init 函数 (带 @JvmStatic 确保 Java 可直接调用)
-    val initFunc = FunSpec.builder(METHOD)
-      .addAnnotation(JvmStatic::class)
-      .addModifiers(KModifier.PUBLIC)
-      .addCode(
-        // %T 会自动处理 Import 并加上 ::class.java
-        // %L 处理布尔字面量
-        "%T.put(%T::class.java, %T::class.java, %L)",
-        serviceLoaderClass,
-        interfaceClassName,
-        implClassName,
-        singleton
-      )
-      .build()
-
-    // 4. 构建 Companion Object (容纳静态方法)
-    val companionObj = TypeSpec.companionObjectBuilder()
-      .addFunction(initFunc)
-      .build()
-
-    // 5. 构建主类
-    val classSpec = TypeSpec.classBuilder(targetClassName)
-      .addModifiers(KModifier.PUBLIC)
-      .addType(companionObj)
-      .build()
-
-    // 6. 生成文件并自动处理所有 import
-    val fileSpec = FileSpec.builder(implClassName.packageName, targetClassName)
-      .addType(classSpec)
-      .build()
-
-    // 7. 写入 KSP 生成目录，并配置增量编译依赖
-    fileSpec.writeTo(
-      codeGenerator = codeGenerator,
-      dependencies = Dependencies(
-        aggregating = false,
-        classDeclaration.containingFile!! // 动态关联原始文件
-      )
-    )
-    classSet.add("${implClassName.packageName}.$targetClassName")
-    warn("KSP RouterServiceProcessor generateKotlinFile: targetClassName = ${targetClassName}")
-  }
-
   override fun finish() {
     super.finish()
-    warn("KSP finish class size:${classSet.size}")
-    if (classSet.isNotEmpty()) {
-      generateConfigFile(classSet.joinToString("\n"))
+    warn("KSP finish class size:${routerMetadataList.size}")
+
+    if (routerMetadataList.isNotEmpty()) {
+      // 计算模块指纹：包名 + 类名 + 路径，通过排序保证 Hash 稳定性
+      val moduleFingerprint = originatingFiles.flatMap { file ->
+        file.declarations.filterIsInstance<KSClassDeclaration>()
+          .map { "${it.qualifiedName?.asString() ?: ""}:${file.filePath}" }
+      }.filter { it.isNotEmpty() }.distinct().sorted().joinToString().hashCode()
+
+      val hexHash = Integer.toHexString(moduleFingerprint).uppercase()
+      val targetClassName = "Router_$hexHash$SUFFIX"
+
+      // 4.在 finish 中计算 Hash 并生成唯一的汇总类
+      generateCombinedFile(targetClassName)
+
+      // 5.配置文件记录这个生产的汇总类,后续 AGP 插件会使用
+      generateConfigFile("$GENERATED_PACKAGE.$targetClassName")
     }
+  }
+
+  private fun generateCombinedFile(targetClassName: String) {
+    // 定义目标 ServiceLoader 类的包名类名，用于后续生成代码时的 Import 引用
+    val serviceLoaderClass = ClassName("com.sofar.router.service", "ServiceLoader")
+
+    // 构建 load 函数：遍历收集到的元数据，生成 ServiceLoader.put(接口, 实现类, 是否单例) 的调用代码
+    val loadFunc = FunSpec.builder(METHOD)
+      .addAnnotation(JvmStatic::class)
+      .addModifiers(KModifier.PUBLIC)
+      .apply {
+        routerMetadataList.forEach { data ->
+          addCode(
+            // %T 自动处理类引用和 Import，%L 处理布尔值字面量
+            "%T.put(%T::class.java, %T::class.java, %L)\n",
+            serviceLoaderClass, data.interf, data.impl, data.singleton
+          )
+        }
+      }.build()
+
+    // 构建类结构：创建一个类，并将上述 load 函数放入其伴生对象（companion object）中
+    val classSpec = TypeSpec.classBuilder(targetClassName)
+      .addModifiers(KModifier.PUBLIC)
+      .addType(TypeSpec.companionObjectBuilder().addFunction(loadFunc).build())
+      .build()
+
+    // 生成文件并写入：指定包名和文件名，通过 KSP 的 codeGenerator 物理输出文件，并关联源文件以支持增量编译
+    FileSpec.builder(GENERATED_PACKAGE, targetClassName)
+      .addType(classSpec)
+      .build()
+      .writeTo(
+        codeGenerator,
+        Dependencies(aggregating = true, sources = originatingFiles.toTypedArray())
+      )
+
+    // 打印编译日志，输出生成的类名和处理的条目数量
+    warn("KSP RouterServiceProcessor generateCombinedFile: targetClassName = $targetClassName, size = ${routerMetadataList.size}")
   }
 
   private fun generateConfigFile(content: String) {
